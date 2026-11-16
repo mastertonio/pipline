@@ -346,7 +346,8 @@ function setTeam(on){
 function setLock(on){
   locked = on;
   document.querySelectorAll('.toggle button').forEach(x => {
-    x.removeAttribute('aria-disabled');
+    x.disabled = on && x.getAttribute('aria-pressed') !== 'true';
+    x.setAttribute('aria-disabled', String(x.disabled));
     x.toggleAttribute('data-muted', on && x.getAttribute('aria-pressed') !== 'true');
   });
   $('b-chg').hidden = !on;
@@ -397,6 +398,26 @@ function go(i){
   save();
 }
 
+// Enter commits an entry without interrupting multi-digit typing.
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || e.isComposing || e.target.tagName !== 'INPUT' || e.target.type === 'hidden') return;
+  const panel = e.target.closest('.panel.on');
+  if (!panel) return;
+  e.preventDefault();
+  touched.add(e.target.id);
+  update();
+  const field = e.target.closest('[data-f]');
+  if (!e.target.value.trim() || field?.classList.contains('err')) return;
+  const entries = [...panel.querySelectorAll('input:not([type="hidden"]),select')]
+    .filter(x => !x.disabled && x.getClientRects().length);
+  const next = entries[entries.indexOf(e.target) + 1];
+  (next || panel.querySelector('.cta:not(:disabled)'))?.focus();
+  if (next?.tagName === 'INPUT') next.select();
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 'cyc-u' && document.activeElement === e.target) $('think').focus();
+});
+
 document.addEventListener('input', () => { update(); save(); });
 document.addEventListener('change', e => { if (e.target.tagName === 'SELECT'){ update(); save(); } });
 document.addEventListener('focusout', e => { const id = e.target.id; if (rules[id] || id === 'think' || id === 'no'){ touched.add(id); update(); } });
@@ -422,13 +443,7 @@ $('inv').addEventListener('input', () => { invTouched = true; }, true);
 $('inv').addEventListener('blur', e => { const v = num(e.target.value); if (v !== null) e.target.value = Math.round(v).toLocaleString('en-US'); });
 document.querySelectorAll('.toggle button').forEach(b => b.addEventListener('click', () => {
   const nextTeam = b.dataset.type === 'team';
-  if (nextTeam === team) { setLock(true); update(); save(); return; }
-  const hasEnteredNumbers = BASE.some(id => !['wks','cyc-u'].includes(id) && $(id).value.trim() !== '');
-  if (hasEnteredNumbers) {
-    $('dlg-type').showModal();
-    $('dlg-no').focus();
-    return;
-  }
+  if (locked || b.disabled) return;
   setTeam(nextTeam); setLock(true); update(); save();
 }));
 // typing a Baseline number also confirms the current type
@@ -440,7 +455,7 @@ $('dlg-ok').addEventListener('click', () => {
   dlg.close();
   BASE.forEach(id => { const x = $(id); if (x) x.value = x.tagName === 'SELECT' ? x.options[0].value : x.defaultValue; touched.delete(id); });
   showAll = false;
-  setTeam(!team); setLock(false); update(); save();
+  setTeam(!team); setLock(true); update(); save();
   document.querySelector('.toggle button[aria-pressed="true"]').focus();
 });
 let resetArmed = null;

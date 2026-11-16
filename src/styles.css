@@ -773,3 +773,12 @@ main.wrap{container:dfwrap / inline-size}
 .toggle button[data-muted] svg{opacity:.55}
 .toggle button[data-muted]:not([aria-pressed="true"]):hover,.toggle button[data-muted]:active{background:transparent}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Stable metric rows prevent period changes from reflowing the sticky panel. */
+[data-panel="0"] .snap .head .seg{flex-shrink:0}
+[data-panel="0"] .snap .kpi:not(.pair .kpi){align-items:flex-start;flex-direction:column;gap:6px}
+[data-panel="0"] .snap .unconv .row{align-items:flex-start;flex-direction:column;gap:6px}
+[data-panel="0"] .snap .v{max-width:100%;overflow-wrap:anywhere;white-space:normal;line-height:1.3}
+[data-panel="0"] .snap .unconv .k{min-height:2.7em}
+.toggle button:disabled{cursor:not-allowed}
+.input:focus-within,.wk-in:focus-within{outline:2px solid #4d86c6;outline-offset:2px;box-shadow:0 0 0 4px rgba(31,72,119,.14)}
