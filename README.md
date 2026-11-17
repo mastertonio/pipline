@@ -27,7 +27,7 @@ Monthly presentations = reps × presentations/week × selling weeks/year ÷ 12. 
 
 Presenter and Audience each have five categories, rated for Today and With the Framework. Ten positive score gaps are added. Relative conversion lift = total points × scenario value per point (1%, 1.5%, 2%). Projected close rate = current close rate × (1 + lift), capped at 95%. Investment/payback and other result metrics follow the original engine.
 
-Assessment selection retains the approved muted inactive appearance. Both types remain clickable: switching an empty form is immediate, and switching an entered form opens the confirmation before clearing baseline values. Start over requires a second click within three seconds. Share copies a URL containing the full assessment hash. Print opens the browser print dialog. Presentation mode matches the source.
+Assessment selection retains the approved muted inactive appearance. Both types remain clickable: switching an empty form is immediate, and switching an entered form opens the confirmation before clearing baseline values. Start over requires a second click within three seconds. Assessment data persists locally in this browser without adding characters to the URL. Existing assessment hash links are imported and cleaned on load. Share copies only the clean page URL, without assessment data. Print opens the browser print dialog. Presentation mode matches the source.
 
 Local persistence and live offer-value commas are retained as requested additions. Existing baseline inputs migrate from the earlier version; simplified legacy scores cannot map to the original ten rating pairs.
 

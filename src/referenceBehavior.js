@@ -328,11 +328,9 @@ function update(){
 const fields = () => [...document.querySelectorAll('input,select')].filter(x => x.id);
 function save(){
   try {
-    let prev = {}; try { const m = location.hash.match(/^#s=(.+)$/); if (m) prev = JSON.parse(decodeURIComponent(m[1])) || {}; } catch {}
     const v = {};
     fields().forEach(x => { if (x.id === 'inv' && !invTouched) return; const def = x.type === 'hidden' ? '' : x.tagName === 'SELECT' ? x.options[0].value : x.defaultValue; if (x.value !== def || x.id === 'inv') v[x.id] = x.value; });
-    history.replaceState(null, '', '#s=' + encodeURIComponent(JSON.stringify({v, t:team?1:0, lk:locked?1:0, p:per, c:scen, st:step})));
-    try { localStorage.setItem('pipeline-original-assessment-v1', location.hash); } catch {}
+    localStorage.setItem('pipeline-original-assessment-v1', '#s=' + encodeURIComponent(JSON.stringify({v, t:team?1:0, lk:locked?1:0, p:per, c:scen, st:step})));
   } catch {}
 }
 let invTouched = false;
@@ -361,12 +359,19 @@ function restore(){
       const old = JSON.parse(localStorage.getItem('pipeline-discovery-assessment-v1'));
       if (old && old.presentations) {
         const v = {ppw:old.presentations,aov:old.offerValue,cr:old.closeRate,think:old.think,no:old.no,wks:old.weeks || '48',cyc:old.cycle || '', 'cyc-u':old.cycleUnit || 'Days'};
-        history.replaceState(null,'','#s='+encodeURIComponent(JSON.stringify({v,t:old.type==='Sales Team'?1:0,lk:1,p:'m',c:0.015,st:0})));
+        st = {v,t:old.type==='Sales Team'?1:0,lk:1,p:'m',c:0.015,st:0};
       }
     }
   } catch {}
-  try { if (!location.hash && localStorage.getItem('pipeline-original-assessment-v1')) history.replaceState(null, '', localStorage.getItem('pipeline-original-assessment-v1')); } catch {}
-  try { const m = location.hash.match(/^#s=(.+)$/); if (m) st = JSON.parse(decodeURIComponent(m[1])); } catch {}
+  // Import old assessment links without keeping their data in the address bar.
+  try {
+    const saved = location.hash || localStorage.getItem('pipeline-original-assessment-v1') || '';
+    const m = saved.match(/^#s=(.+)$/);
+    if (m) st = JSON.parse(decodeURIComponent(m[1]));
+  } catch {}
+  if (location.hash.startsWith('#s=')) {
+    try { history.replaceState(null, '', location.pathname + location.search); } catch {}
+  }
   if (st && st.v){
     delete st.v.pfor; delete st.v.pby;
     for (const id in st.v){ const el = $(id); if (el) el.value = st.v[id]; }
@@ -470,7 +475,7 @@ $('b-present').addEventListener('click', () => {
   $('b-present').lastChild.textContent = on ? 'Exit Presentation' : 'Presentation Mode'; $('b-present').setAttribute('aria-label', on ? 'Exit Presentation' : 'Presentation Mode');
 });
 $('b-share').addEventListener('click', async () => {
-  try { await navigator.clipboard.writeText(location.href); $('b-share').querySelector('span').textContent = 'Link copied'; }
+  try { await navigator.clipboard.writeText(location.origin + location.pathname); $('b-share').querySelector('span').textContent = 'Link copied'; }
   catch { $('b-share').querySelector('span').textContent = 'Copy the page link'; }
   setTimeout(() => $('b-share').querySelector('span').textContent = 'Share', 2200);
 });
